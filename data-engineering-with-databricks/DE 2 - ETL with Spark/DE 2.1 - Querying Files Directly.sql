@@ -38,6 +38,11 @@
 
 -- COMMAND ----------
 
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls("/mnt/dbacademy-datasets/data-engineer-learning-path/v04/"))
+
+-- COMMAND ----------
+
 -- MAGIC %md
 -- MAGIC
 -- MAGIC
@@ -96,6 +101,11 @@
 -- MAGIC <strong><code>SELECT * FROM file_format.&#x60;/path/to/file&#x60;</code></strong>
 -- MAGIC
 -- MAGIC Make special note of the use of back-ticks (not single quotes) around the path.
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC print(DA.paths.kafka_events)
 
 -- COMMAND ----------
 
@@ -186,6 +196,7 @@ SELECT * FROM events_temp_view
 WITH cte_json
 AS (SELECT * FROM json.`${DA.paths.kafka_events}`)
 SELECT * FROM cte_json
+LIMIT 10;
 
 -- COMMAND ----------
 
