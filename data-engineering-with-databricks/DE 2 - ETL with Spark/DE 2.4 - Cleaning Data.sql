@@ -61,6 +61,10 @@
 
 -- COMMAND ----------
 
+SELECT * FROM users_dirty;
+
+-- COMMAND ----------
+
 SELECT count(*), count(user_id), count(user_first_touch_timestamp), count(email), count(updated)
 FROM users_dirty
 
@@ -106,6 +110,17 @@ SELECT count(*) FROM users_dirty WHERE email IS NULL;
 -- COMMAND ----------
 
 SELECT DISTINCT(*) FROM users_dirty
+
+-- COMMAND ----------
+
+SELECT DISTINCT user_id, user_first_touch_timestamp FROM users_dirty
+
+-- COMMAND ----------
+
+SELECT user_id, user_first_touch_timestamp, COUNT(user_id) as count_user_id, COUNT(user_first_touch_timestamp) AS count_user_first_touch_timestamp
+FROM users_dirty
+GROUP BY 1, 2
+HAVING COUNT(user_id) > 1 AND COUNT(user_first_touch_timestamp) > 1;
 
 -- COMMAND ----------
 
@@ -170,6 +185,11 @@ WHERE user_id IS NOT NULL
 
 -- COMMAND ----------
 
+-- MAGIC %python
+-- MAGIC usersDF.count()
+
+-- COMMAND ----------
+
 -- MAGIC %md
 -- MAGIC
 -- MAGIC ## Validate Datasets
@@ -178,6 +198,12 @@ WHERE user_id IS NOT NULL
 -- MAGIC We can also programmatically perform validation using simple filters and **`WHERE`** clauses.
 -- MAGIC
 -- MAGIC Validate that the **`user_id`** for each row is unique.
+
+-- COMMAND ----------
+
+SELECT user_id , COUNT(*) AS row_count
+  FROM deduped_users
+  GROUP BY user_id
 
 -- COMMAND ----------
 
@@ -191,10 +217,10 @@ SELECT max(row_count) <= 1 no_duplicate_ids FROM (
 -- MAGIC %python
 -- MAGIC from pyspark.sql.functions import count
 -- MAGIC
--- MAGIC display(dedupedDF
--- MAGIC     .groupBy("user_id")
--- MAGIC     .agg(count("*").alias("row_count"))
--- MAGIC     .select((max("row_count") <= 1).alias("no_duplicate_ids")))
+-- MAGIC dedupedDF\
+-- MAGIC     .groupBy("user_id")\
+-- MAGIC     .agg(count("*").alias("row_count"))\
+-- MAGIC     .select((max("row_count") <= 1).alias("no_duplicate_ids")).show()
 
 -- COMMAND ----------
 
@@ -203,6 +229,15 @@ SELECT max(row_count) <= 1 no_duplicate_ids FROM (
 -- MAGIC
 -- MAGIC
 -- MAGIC Confirm that each email is associated with at most one **`user_id`**.
+
+-- COMMAND ----------
+
+SELECT email, COUNT(user_id) AS user_id_count
+FROM deduped_users
+WHERE email IS NOT NULL
+GROUP BY 1
+HAVING user_id_count > 1;
+
 
 -- COMMAND ----------
 
@@ -234,6 +269,12 @@ SELECT max(user_id_count) <= 1 at_most_one_id FROM (
 -- MAGIC - Correctly scales and casts the **`user_first_touch_timestamp`** to a valid timestamp
 -- MAGIC - Extracts the calendar date and clock time for this timestamp in human readable format
 -- MAGIC - Uses **`regexp_extract`** to extract the domains from the email column using regex
+
+-- COMMAND ----------
+
+SELECT *,
+    CAST(user_first_touch_timestamp / 1e6 AS timestamp) AS first_touch 
+  FROM deduped_users
 
 -- COMMAND ----------
 
