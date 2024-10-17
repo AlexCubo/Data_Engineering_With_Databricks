@@ -47,9 +47,13 @@
 
 -- COMMAND ----------
 
+SELECT * FROM item_lookup;
+
+-- COMMAND ----------
+
 CREATE OR REPLACE FUNCTION sale_announcement(item_name STRING, item_price INT)
 RETURNS STRING
-RETURN concat("The ", item_name, " is on sale for $", round(item_price * 0.8, 0));
+RETURN concat("The ", item_name, " is on sale for $ ", round(item_price * 0.8, 0));
 
 SELECT *, sale_announcement(name, price) AS message FROM item_lookup
 
@@ -71,6 +75,10 @@ SELECT *, sale_announcement(name, price) AS message FROM item_lookup
 -- MAGIC - To **use** a SQL UDF, you need **`USE CATALOG`** on the catalog, **`USE SCHEMA`** on the schema, and **`EXECUTE`** on the function.
 -- MAGIC
 -- MAGIC We can use **`DESCRIBE FUNCTION`** to see where a function was registered and basic information about expected inputs and what is returned (and even more information with **`DESCRIBE FUNCTION EXTENDED`**).
+
+-- COMMAND ----------
+
+SHOW USER FUNCTIONS;
 
 -- COMMAND ----------
 
