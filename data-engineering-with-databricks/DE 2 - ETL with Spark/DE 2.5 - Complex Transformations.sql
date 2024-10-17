@@ -50,6 +50,10 @@
 
 -- COMMAND ----------
 
+SELECT * FROM  events_raw;
+
+-- COMMAND ----------
+
 CREATE OR REPLACE TEMP VIEW events_strings AS 
 SELECT string(key), string(value) FROM events_raw;
 
@@ -86,7 +90,17 @@ SELECT * FROM events_strings
 
 -- COMMAND ----------
 
-SELECT * FROM events_strings WHERE value:event_name = "finalize" ORDER BY key LIMIT 1
+SELECT * FROM events_strings WHERE value:event_name = "finalize" ORDER BY key LIMIT 10
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC from pyspark.sql.functions import col
+-- MAGIC
+-- MAGIC events_stringsDF.where(" value:event_name = 'finalize' ")\
+-- MAGIC             .orderBy("key") \
+-- MAGIC             .limit(1) \
+-- MAGIC             .show()
 
 -- COMMAND ----------
 
@@ -170,6 +184,13 @@ DESCRIBE exploded_events
 
 -- COMMAND ----------
 
+SELECT * --user_id, event_name, items
+FROM exploded_events
+WHERE user_id = "UA000000107375530"
+ORDER BY 1;
+
+-- COMMAND ----------
+
 -- MAGIC %md
 -- MAGIC The code below combines array transformations to create a table that shows the unique collection of actions and the items in a user's cart.
 -- MAGIC - **`collect_set()`** collects unique values for a field, including fields within arrays.
@@ -179,10 +200,11 @@ DESCRIBE exploded_events
 -- COMMAND ----------
 
 SELECT user_id,
-  collect_set(event_name) AS event_history,
-  array_distinct(flatten(collect_set(items.item_id))) AS cart_history
+collect_set(event_name) AS event_history,
+array_distinct(flatten(collect_set(items.item_id))) AS cart_history
 FROM exploded_events
-GROUP BY user_id
+WHERE user_id = "UA000000107375530"
+GROUP BY user_id;
 
 -- COMMAND ----------
 
@@ -210,6 +232,18 @@ GROUP BY user_id
 -- MAGIC
 -- MAGIC Spark SQL supports standard **`JOIN`** operations (inner, outer, left, right, anti, cross, semi).  
 -- MAGIC Here we join the exploded events dataset with a lookup table to grab the standard printed item name.
+
+-- COMMAND ----------
+
+SELECT * FROM sales;
+
+-- COMMAND ----------
+
+SELECT schema_of_json('{"coupon": null, "item_id": "M_PREM_F", "item_name": "Premium Full Mattress", "item_revenue_in_usd": 1695, "price_in_usd": 1695, "quantity": 1}')
+
+-- COMMAND ----------
+
+SELECT items, explode(items) AS exploded_item FROM sales
 
 -- COMMAND ----------
 
@@ -251,6 +285,112 @@ SELECT * FROM item_purchases
 
 -- COMMAND ----------
 
+CREATE TABLE product_sales (
+  product_name VARCHAR(100),
+  store_location VARCHAR(50),
+  num_sales INT
+);
+
+INSERT INTO product_sales (product_name, store_location, num_sales) VALUES
+('Chair', 'North', 55),
+('Desk', 'Central', 120),
+('Couch', 'Central', 78),
+('Chair', 'South', 23),
+('Chair', 'South', 10),
+('Chair', 'North', 98),
+('Desk', 'West', 61),
+('Couch', 'North', 180),
+('Chair', 'South', 14),
+('Desk', 'North', 45),
+('Chair', 'North', 87),
+('Chair', 'Central', 34),
+('Desk', 'South', 42),
+('Couch', 'West', 58),
+('Couch', 'Central', 27),
+('Chair', 'South', 91),
+('Chair', 'West', 82),
+('Chair', 'North', 37),
+('Desk', 'North', 68),
+('Couch', 'Central', 54),
+('Chair', 'South', 81),
+('Desk', 'North', 25),
+('Chair', 'North', 46),
+('Chair', 'Central', 121),
+('Desk', 'South', 85),
+('Couch', 'North', 43),
+('Desk', 'West', 10),
+('Chair', 'North', 5),
+('Chair', 'Central', 16),
+('Desk', 'South', 9),
+('Couch', 'West', 22),
+('Couch', 'Central', 59),
+('Chair', 'South', 76),
+('Chair', 'West', 48),
+('Chair', 'North', 19),
+('Desk', 'North', 3),
+('Couch', 'West', 63),
+('Chair', 'South', 81),
+('Desk', 'North', 85),
+('Chair', 'North', 90),
+('Chair', 'Central', 47),
+('Desk', 'West', 63),
+('Couch', 'North', 28);
+
+SELECT * FROM product_sales;
+
+-- COMMAND ----------
+
+SELECT
+product_name,
+North, Central, South, West
+FROM (
+  SELECT product_name, store_location, num_sales
+  FROM product_sales
+) 
+PIVOT
+(
+  SUM(num_sales)
+  FOR store_location IN ('North', 'Central', 'South', 'West')
+);
+
+-- COMMAND ----------
+
+SELECT name,
+    P_FOAM_K,
+    M_STAN_Q,
+    P_FOAM_S,
+    M_PREM_Q,
+    M_STAN_F,
+    M_STAN_T,
+    M_PREM_K,
+    M_PREM_F,
+    M_STAN_K,
+    M_PREM_T,
+    P_DOWN_S,
+    P_DOWN_K
+FROM (SELECT name, item, item_id FROM item_purchases)
+PIVOT (
+  sum(item.quantity) FOR item_id IN (
+    'P_FOAM_K',
+    'M_STAN_Q',
+    'P_FOAM_S',
+    'M_PREM_Q',
+    'M_STAN_F',
+    'M_STAN_T',
+    'M_PREM_K',
+    'M_PREM_F',
+    'M_STAN_K',
+    'M_PREM_T',
+    'P_DOWN_S',
+    'P_DOWN_K')
+) 
+
+-- COMMAND ----------
+
+DROP TABLE IF EXISTS product_sales;
+
+-- COMMAND ----------
+
 SELECT *
 FROM item_purchases
 PIVOT (
@@ -273,16 +413,16 @@ PIVOT (
 
 -- MAGIC %python
 -- MAGIC transactionsDF = (item_purchasesDF
--- MAGIC     .groupBy("order_id", 
--- MAGIC         "email",
--- MAGIC         "transaction_timestamp", 
--- MAGIC         "total_item_quantity", 
--- MAGIC         "purchase_revenue_in_usd", 
--- MAGIC         "unique_items",
--- MAGIC         "items",
--- MAGIC         "item",
--- MAGIC         "name",
--- MAGIC         "price")
+-- MAGIC     .groupBy(#"order_id", 
+-- MAGIC        # "email",
+-- MAGIC        # "transaction_timestamp", 
+-- MAGIC        # "total_item_quantity", 
+-- MAGIC        # "purchase_revenue_in_usd", 
+-- MAGIC        # "unique_items",
+-- MAGIC        # "items",
+-- MAGIC        # "item",
+-- MAGIC         "name")
+-- MAGIC        # "price")
 -- MAGIC     .pivot("item_id")
 -- MAGIC     .sum("item.quantity")
 -- MAGIC )

@@ -120,7 +120,8 @@ SELECT DISTINCT user_id, user_first_touch_timestamp FROM users_dirty
 SELECT user_id, user_first_touch_timestamp, COUNT(user_id) as count_user_id, COUNT(user_first_touch_timestamp) AS count_user_first_touch_timestamp
 FROM users_dirty
 GROUP BY 1, 2
-HAVING COUNT(user_id) > 1 AND COUNT(user_first_touch_timestamp) > 1;
+HAVING COUNT(user_id) > 1 AND COUNT(user_first_touch_timestamp) > 1
+ORDER BY 1,2;
 
 -- COMMAND ----------
 
@@ -246,6 +247,15 @@ SELECT max(user_id_count) <= 1 at_most_one_id FROM (
   FROM deduped_users
   WHERE email IS NOT NULL
   GROUP BY email)
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC dedupedDF.where(col("email").isNotNull()) \
+-- MAGIC         .groupby(col("email")) \
+-- MAGIC         .agg(count(col("user_id")).alias("user_id_count")) \
+-- MAGIC         .select(max(col("user_id_count") <= 1).alias("at_most_one_id")) \
+-- MAGIC         .show()            
 
 -- COMMAND ----------
 
