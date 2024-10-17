@@ -52,6 +52,14 @@
 
 -- COMMAND ----------
 
+SELECT * FROM events;
+
+-- COMMAND ----------
+
+SELECT DISTINCT event_name FROM events;
+
+-- COMMAND ----------
+
 -- MAGIC %md
 -- MAGIC
 -- MAGIC ## Pivot events to get event counts for each user
@@ -97,11 +105,50 @@
 
 -- COMMAND ----------
 
--- CREATE OR REPLACE TEMP VIEW events_pivot
--- <FILL_IN>
--- ("cart", "pillows", "login", "main", "careers", "guest", "faq", "down", "warranty", "finalize", 
--- "register", "shipping_info", "checkout", "mattresses", "add_item", "press", "email_coupon", 
--- "cc_info", "foam", "reviews", "original", "delivery", "premium")
+ CREATE OR REPLACE TEMP VIEW events_pivot
+ AS 
+ SELECT 
+    user_id AS user, 
+    cart,
+    pillows,
+    login,
+    main,
+    careers,
+    guest,
+    faq,
+    down,
+    warranty,
+    finalize,
+    register,
+    shipping_info,
+    checkout,
+    mattresses,
+    add_item,
+    press,
+    email_coupon,
+    cc_info,
+    foam,
+    reviews,
+    original,
+    delivery,
+    premium
+ FROM (SELECT user_id, event_name FROM events)
+ PIVOT (
+  count(user)
+  FOR event_name IN  ("cart", "pillows", "login", "main", "careers", "guest", "faq", "down", "warranty", "finalize", 
+ "register", "shipping_info", "checkout", "mattresses", "add_item", "press", "email_coupon", 
+ "cc_info", "foam", "reviews", "original", "delivery", "premium")
+ )
+ ORDER BY user;
+
+
+-- COMMAND ----------
+
+SELECT * FROM events_pivot;
+
+-- COMMAND ----------
+
+SELECT COUNT(*) FROM events_pivot;
 
 -- COMMAND ----------
 
@@ -119,10 +166,20 @@
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC # TODO
--- MAGIC # (spark.read
--- MAGIC #     <FILL_IN>
--- MAGIC #     .createOrReplaceTempView("events_pivot"))
+-- MAGIC spark.table("events") \
+-- MAGIC   .withColumnRenamed("user_id", "user") \
+-- MAGIC   .groupBy("user") \
+-- MAGIC   .pivot("event_name")\
+-- MAGIC   .count() \
+-- MAGIC   .createOrReplaceTempView("events_pivot_with_python")
+
+-- COMMAND ----------
+
+SELECT * FROM events_pivot_with_python;
+
+-- COMMAND ----------
+
+SELECT COUNT(*) FROM events_pivot_with_python;
 
 -- COMMAND ----------
 
@@ -134,7 +191,7 @@
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC check_table_results("events_pivot", 204586, ['user', 'cart', 'pillows', 'login', 'main', 'careers', 'guest', 'faq', 'down', 'warranty', 'finalize', 'register', 'shipping_info', 'checkout', 'mattresses', 'add_item', 'press', 'email_coupon', 'cc_info', 'foam', 'reviews', 'original', 'delivery', 'premium'])
+-- MAGIC check_table_results("events_pivot_with_python", 204586, ['user', 'cart', 'pillows', 'login', 'main', 'careers', 'guest', 'faq', 'down', 'warranty', 'finalize', 'register', 'shipping_info', 'checkout', 'mattresses', 'add_item', 'press', 'email_coupon', 'cc_info', 'foam', 'reviews', 'original', 'delivery', 'premium'])
 
 -- COMMAND ----------
 
@@ -172,14 +229,28 @@
 
 -- COMMAND ----------
 
+SELECT * FROM transactions;
+
+-- COMMAND ----------
+
 -- MAGIC %md
 -- MAGIC
 -- MAGIC ### Solve with SQL
 
 -- COMMAND ----------
 
--- CREATE OR REPLACE TEMP VIEW clickpaths AS
--- <FILL_IN>
+CREATE OR REPLACE TEMP VIEW clickpaths AS
+SELECT * FROM events_pivot
+JOIN transactions ON events_pivot.user = transactions.user_id;
+
+
+-- COMMAND ----------
+
+SELECT * FROM clickpaths;
+
+-- COMMAND ----------
+
+select count(*) FROM clickpaths;
 
 -- COMMAND ----------
 
@@ -196,10 +267,21 @@
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC # TODO
--- MAGIC # (spark.read
--- MAGIC #     <FILL_IN>
--- MAGIC #     .createOrReplaceTempView("clickpaths"))
+-- MAGIC events_pivotDF = (spark 
+-- MAGIC     .table("events") 
+-- MAGIC     .withColumnRenamed("user_id", "user") 
+-- MAGIC     .groupBy("user") 
+-- MAGIC     .pivot("event_name")
+-- MAGIC     .count()
+-- MAGIC )
+-- MAGIC
+-- MAGIC transactionsDF = spark.table("transactions")
+-- MAGIC
+-- MAGIC events_pivotDF.join(transactionsDF, events_pivotDF.user == transactionsDF.user_id, "inner").createOrReplaceTempView("clickpaths_with_python")
+
+-- COMMAND ----------
+
+SELECT * FROM clickpaths_with_python;
 
 -- COMMAND ----------
 
@@ -211,7 +293,7 @@
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC check_table_results("clickpaths", 9085, ['user', 'cart', 'pillows', 'login', 'main', 'careers', 'guest', 'faq', 'down', 'warranty', 'finalize', 'register', 'shipping_info', 'checkout', 'mattresses', 'add_item', 'press', 'email_coupon', 'cc_info', 'foam', 'reviews', 'original', 'delivery', 'premium', 'user_id', 'order_id', 'transaction_timestamp', 'total_item_quantity', 'purchase_revenue_in_usd', 'unique_items', 'P_FOAM_K', 'M_STAN_Q', 'P_FOAM_S', 'M_PREM_Q', 'M_STAN_F', 'M_STAN_T', 'M_PREM_K', 'M_PREM_F', 'M_STAN_K', 'M_PREM_T', 'P_DOWN_S', 'P_DOWN_K'])
+-- MAGIC check_table_results("clickpaths_with_python", 9085, ['user', 'cart', 'pillows', 'login', 'main', 'careers', 'guest', 'faq', 'down', 'warranty', 'finalize', 'register', 'shipping_info', 'checkout', 'mattresses', 'add_item', 'press', 'email_coupon', 'cc_info', 'foam', 'reviews', 'original', 'delivery', 'premium', 'user_id', 'order_id', 'transaction_timestamp', 'total_item_quantity', 'purchase_revenue_in_usd', 'unique_items', 'P_FOAM_K', 'M_STAN_Q', 'P_FOAM_S', 'M_PREM_Q', 'M_STAN_F', 'M_STAN_T', 'M_PREM_K', 'M_PREM_F', 'M_STAN_K', 'M_PREM_T', 'P_DOWN_S', 'P_DOWN_K'])
 
 -- COMMAND ----------
 
