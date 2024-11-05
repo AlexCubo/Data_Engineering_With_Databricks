@@ -56,6 +56,25 @@
 
 -- COMMAND ----------
 
+SELECT * FROM sales
+LIMIT 10;
+
+-- COMMAND ----------
+
+SELECT order_id, unique_items, items
+FROM sales
+WHERE size(items) > 1;
+
+-- COMMAND ----------
+
+SELECT
+    order_id,
+    FILTER (items, i -> i.item_id LIKE "%K") AS king_items
+  FROM sales
+  LIMIT 10;
+
+-- COMMAND ----------
+
 SELECT * FROM (
   SELECT
     order_id,
@@ -81,6 +100,7 @@ SELECT *,
     items, i -> CAST(i.item_revenue_in_usd * 100 AS INT)
   ) AS item_revenues
 FROM sales
+LIMIT 10;
 
 -- COMMAND ----------
 
@@ -108,10 +128,20 @@ FROM sales
 
 -- COMMAND ----------
 
--- CREATE OR REPLACE TABLE sales_product_flags AS
--- <FILL_IN>
--- EXISTS <FILL_IN>.item_name LIKE "%Mattress"
--- EXISTS <FILL_IN>.item_name LIKE "%Pillow"
+ CREATE OR REPLACE TABLE sales_product_flags AS
+ SELECT items,
+        EXISTS (items, i->i.item_name LIKE "%Mattress") AS mattress,
+        EXISTS (items, i-> i.item_name LIKE "%Pillow") AS pillow
+ FROM sales;
+
+ SELECT * FROM sales_product_flags;
+
+-- COMMAND ----------
+
+SELECT 
+  SUM(CAST(mattress AS INT)) AS num_matress,
+  SUM(CAST(pillow AS INT)) AS num_pillow     
+  FROM sales_product_flags;
 
 -- COMMAND ----------
 
