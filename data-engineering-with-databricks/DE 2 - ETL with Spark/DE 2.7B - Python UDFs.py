@@ -90,6 +90,28 @@ display(sales_df.select(first_letter_udf(col("email"))))
 # COMMAND ----------
 
 # MAGIC %md
+# MAGIC ## Register UDF to use in SQL
+# MAGIC Register the UDF spark.udf.register to also make it available for use in the SQL namespace
+
+# COMMAND ----------
+
+sales_df.createOrReplaceTempView("sales")
+
+first_letter_udf = spark.udf.register("sql_udf", first_letter_function)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Now I can use the sql_udf SQL function 
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SELECT sql_udf(email) AS first_letter FROM sales;
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC
 # MAGIC ### Use Decorator Syntax (Python Only)
 # MAGIC
@@ -102,7 +124,8 @@ display(sales_df.select(first_letter_udf(col("email"))))
 # COMMAND ----------
 
 # Our input/output is a string
-@udf("string")
+#UDF DECORATOR NEEDS AS ARGUMENT THE RETURN TYPE IN FORM: pyspark.sql.types.DataType object or a DDL-formatted type string (e.g. "STRING")
+@udf(returnType="STRING") 
 def first_letter_udf(email: str) -> str:
     return email[0]
 
@@ -161,11 +184,16 @@ display(sales_df.select(vectorized_udf(col("email"))))
 
 # MAGIC %md
 # MAGIC
-# MAGIC We can register these Pandas UDFs to the SQL namespace.
+# MAGIC ### Register these Pandas UDFs to the SQL namespace.
 
 # COMMAND ----------
 
 spark.udf.register("sql_vectorized_udf", vectorized_udf)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Now we can use the SQL function sql_vectorized_udf since we have registered it.
 
 # COMMAND ----------
 
