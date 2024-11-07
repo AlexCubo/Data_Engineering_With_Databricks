@@ -73,6 +73,24 @@ DESCRIBE EXTENDED sales;
 
 -- COMMAND ----------
 
+-- MAGIC %md
+-- MAGIC #### One way to get an idea of the data type in the cvs file taht we are loading, is to use spark.read and use option("inferschema", "true")
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC sales_unparsed_df = spark.read \
+-- MAGIC                     .format("csv") \
+-- MAGIC                     .option("header", "true") \
+-- MAGIC                     .option("inferSchema", "true") \
+-- MAGIC                     .option("delimiter", "|") \
+-- MAGIC                     .load(f"{DA.paths.datasets}/ecommerce/raw/sales-csv")
+-- MAGIC
+-- MAGIC display(sales_unparsed_df)
+-- MAGIC
+
+-- COMMAND ----------
+
 CREATE OR REPLACE TABLE sales_unparsed AS
 SELECT * FROM csv.`${da.paths.datasets}/ecommerce/raw/sales-csv`;
 
@@ -89,6 +107,8 @@ SELECT * FROM sales_unparsed;
 
 -- COMMAND ----------
 
+-- First create a temp view using the schema you got from the spark.read with option("inferSchema", "true")
+-- Second create a CTAS from the previous temp view
 CREATE OR REPLACE TEMP VIEW sales_tmp_vw
   (order_id LONG, email STRING, transactions_timestamp LONG, total_item_quantity INTEGER, purchase_revenue_in_usd DOUBLE, unique_items INTEGER, items STRING)
 USING CSV
@@ -102,6 +122,10 @@ CREATE TABLE sales_delta AS
   SELECT * FROM sales_tmp_vw;
   
 SELECT * FROM sales_delta
+
+-- COMMAND ----------
+
+SELECT COUNT(*) AS num_records FROM sales_delta;
 
 -- COMMAND ----------
 
@@ -123,6 +147,10 @@ SELECT order_id AS id, transaction_timestamp, purchase_revenue_in_usd AS price
 FROM sales;
 
 SELECT * FROM purchases
+
+-- COMMAND ----------
+
+SELECT COUNT(*) AS num_records FROM purchases;
 
 -- COMMAND ----------
 
@@ -167,6 +195,11 @@ CREATE OR REPLACE TABLE purchase_dates (
 
 -- COMMAND ----------
 
+SELECT * FROM purchase_dates
+LIMIT 10;
+
+-- COMMAND ----------
+
 -- MAGIC %md
 -- MAGIC
 -- MAGIC  
@@ -184,6 +217,11 @@ USING purchases b
 ON a.id = b.id
 WHEN NOT MATCHED THEN
   INSERT *
+
+-- COMMAND ----------
+
+SELECT * FROM purchase_dates
+LIMIT 10;
 
 -- COMMAND ----------
 
@@ -210,8 +248,8 @@ SELECT * FROM purchase_dates
 
 -- COMMAND ----------
 
--- INSERT INTO purchase_dates VALUES
--- (1, 600000000, 42.0, "2020-06-18")
+INSERT INTO purchase_dates VALUES
+(1, 600000000, 42.0, "2020-06-18")
 
 -- COMMAND ----------
 
@@ -235,6 +273,10 @@ SELECT * FROM purchase_dates
 -- COMMAND ----------
 
 ALTER TABLE purchase_dates ADD CONSTRAINT valid_date CHECK (date > '2020-01-01');
+
+-- COMMAND ----------
+
+SELECT * FROM purchase_dates;
 
 -- COMMAND ----------
 
@@ -272,6 +314,11 @@ DESCRIBE EXTENDED purchase_dates
 -- MAGIC **NOTE**: Partitioning is shown here primarily to demonstrate syntax and impact. Most Delta Lake tables (especially small-to-medium sized data) will not benefit from partitioning. Because partitioning physically separates data files, this approach can result in a small files problem and prevent file compaction and efficient data skipping. The benefits observed in Hive or HDFS do not translate to Delta Lake, and you should consult with an experienced Delta Lake architect before partitioning tables.
 -- MAGIC
 -- MAGIC **As a best practice, you should default to non-partitioned tables for most use cases when working with Delta Lake.**
+
+-- COMMAND ----------
+
+SELECT * FROM parquet.`${DA.paths.datasets}/ecommerce/raw/users-historical`
+LIMIT 2;
 
 -- COMMAND ----------
 
