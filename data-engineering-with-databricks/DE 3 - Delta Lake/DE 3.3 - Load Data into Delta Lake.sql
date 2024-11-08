@@ -63,6 +63,11 @@ SELECT * FROM parquet.`${da.paths.datasets}/ecommerce/raw/events-historical`
 
 -- COMMAND ----------
 
+SELECT * FROM events
+LIMIT 10;
+
+-- COMMAND ----------
+
 -- MAGIC %md
 -- MAGIC
 -- MAGIC
@@ -84,6 +89,10 @@ DESCRIBE HISTORY events
 -- MAGIC - Can only overwrite an existing table, not create a new one like our CRAS statement
 -- MAGIC - Can overwrite only with new records that match the current table schema -- and thus can be a "safer" technique for overwriting an existing table without disrupting downstream consumers
 -- MAGIC - Can overwrite individual partitions
+
+-- COMMAND ----------
+
+DESCRIBE HISTORY sales;
 
 -- COMMAND ----------
 
@@ -114,8 +123,8 @@ DESCRIBE HISTORY sales
 
 -- COMMAND ----------
 
--- INSERT OVERWRITE sales
--- SELECT *, current_timestamp() FROM parquet.`${da.paths.datasets}/ecommerce/raw/sales-historical`
+INSERT OVERWRITE sales
+SELECT *, current_timestamp() FROM parquet.`${da.paths.datasets}/ecommerce/raw/sales-historical`
 
 -- COMMAND ----------
 
@@ -131,8 +140,26 @@ DESCRIBE HISTORY sales
 
 -- COMMAND ----------
 
+SELECT * FROM sales
+LIMIT 10;
+
+-- COMMAND ----------
+
+SELECT * FROM parquet.`${da.paths.datasets}/ecommerce/raw/sales-30m`
+LIMIT 10;
+
+-- COMMAND ----------
+
+SELECT COUNT(*) FROM sales;
+
+-- COMMAND ----------
+
 INSERT INTO sales
 SELECT * FROM parquet.`${da.paths.datasets}/ecommerce/raw/sales-30m`
+
+-- COMMAND ----------
+
+SELECT COUNT(*) FROM sales;
 
 -- COMMAND ----------
 
@@ -164,9 +191,65 @@ SELECT * FROM parquet.`${da.paths.datasets}/ecommerce/raw/sales-30m`
 
 -- COMMAND ----------
 
-CREATE OR REPLACE TEMP VIEW users_update AS 
-SELECT *, current_timestamp() AS updated 
+CREATE OR REPLACE TEMP VIEW users_update_tvw AS 
+SELECT *, current_timestamp() AS updated
 FROM parquet.`${da.paths.datasets}/ecommerce/raw/users-30m`
+
+-- COMMAND ----------
+
+SELECT * FROM users_update_tvw;
+
+
+-- COMMAND ----------
+
+SELECT user_id, email, COUNT(*)
+FROM users_update_tvw
+GROUP BY user_id, email
+HAVING COUNT(*) > 0
+SORT BY 1;
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC * From the previous command we notice that "users_update_tvw" view has some duplicates
+-- MAGIC * We want to remove the duplicates -> when we find a duplicate we leave only the record with a non null e-mail
+-- MAGIC * Removing duplicates is an advantage when we use the users_update_tvw view as source in our MERGE INTO
+
+-- COMMAND ----------
+
+-- Removing duplicates from users_update_tvw. For convenience I created a new view called 
+-- users_update_distinct_tvw
+CREATE OR REPLACE TEMP VIEW users_update_distinct_tvw AS
+SELECT * FROM (
+    SELECT 
+    user_id,
+    user_first_touch_timestamp,
+    email,
+    updated,
+    COUNT(user_id) OVER(PARTITION BY (user_id)) AS user_count,
+    ROW_NUMBER() OVER ( PARTITION BY (user_id) ORDER BY user_id) as row_num
+    FROM users_update_tvw
+  )
+WHERE row_num = 1;
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC Notice that now the "users_update_distinct_tvw" has 917 rows instead 983. 
+-- MAGIC * 66 duplicates have been removed
+
+-- COMMAND ----------
+
+SELECT COUNT(user_id) FROM users_update_distinct_tvw;
+
+-- COMMAND ----------
+
+-- Checking that user_id in users table is unique
+SELECT user_id, COUNT(user_id)
+FROM users
+GROUP BY user_id
+HAVING COUNT(user_id) > 1
+SORT BY 1;
 
 -- COMMAND ----------
 
@@ -185,7 +268,27 @@ FROM parquet.`${da.paths.datasets}/ecommerce/raw/users-30m`
 -- COMMAND ----------
 
 MERGE INTO users a
-USING users_update b
+USING users_update_distinct_tvw b
+ON a.user_id = b.user_id
+WHEN MATCHED AND a.email IS NULL AND b.email IS NOT NULL THEN
+  UPDATE SET email = b.email, updated = b.updated
+WHEN NOT MATCHED THEN INSERT *
+
+-- COMMAND ----------
+
+SELECT COUNT(user_id), COUNT(DISTINCT user_id)
+FROM users;
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC * If we run again the MERGE INTO command we see that no update, deletion or insertion into the target table (users) has been done
+-- MAGIC * We do not get an error because we have previously deleted duplicates from the source view (users_update_distinct_tvw) 
+
+-- COMMAND ----------
+
+MERGE INTO users a
+USING users_update_distinct_tvw b
 ON a.user_id = b.user_id
 WHEN MATCHED AND a.email IS NULL AND b.email IS NOT NULL THEN
   UPDATE SET email = b.email, updated = b.updated
@@ -220,6 +323,15 @@ USING events_update b
 ON a.user_id = b.user_id AND a.event_timestamp = b.event_timestamp
 WHEN NOT MATCHED AND b.traffic_source = 'email' THEN 
   INSERT *
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC * The above code compares the source and target tables on two conditions (user_id and event_timestamp)
+-- MAGIC * If user_id and event_timestamp of the target table are the same as source table -> notthing happens
+-- MAGIC * If user_id or event_timestamp (or both) of the target table does not match with the corresponding field in source table ->  
+-- MAGIC     a. If source.traffic_source = 'email' then a new record is inserted in target  
+-- MAGIC     b. If source.traffic_source <> 'email' then notthing happens
 
 -- COMMAND ----------
 
