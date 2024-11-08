@@ -68,7 +68,14 @@
 
 -- COMMAND ----------
 
--- <FILL_IN>
+CREATE OR REPLACE TABLE events_raw (
+  key BINARY,
+  offset LONG,
+  partition INTEGER,
+  timestamp LONG,
+  topic STRING,
+  value BINARY
+)
 
 -- COMMAND ----------
 
@@ -108,7 +115,8 @@
 
 -- COMMAND ----------
 
--- <FILL_IN>
+INSERT INTO events_raw
+SELECT * FROM hive_metastore.azr_databricks_spark_course_4ryh_da_dewd.events_json;
 
 -- COMMAND ----------
 
@@ -120,7 +128,13 @@
 
 -- COMMAND ----------
 
--- <FILL_IN>
+SELECT * FROM events_raw;
+
+-- COMMAND ----------
+
+SELECT timestamp FROM events_raw
+ORDER BY timestamp DESC
+LIMIT 5;
 
 -- COMMAND ----------
 
@@ -162,7 +176,12 @@
 
 -- COMMAND ----------
 
--- <FILL_IN> ${da.paths.datasets}/ecommerce/raw/item-lookup
+CREATE OR REPLACE TABLE item_lookup AS
+SELECT * FROM parquet.`${da.paths.datasets}/ecommerce/raw/item-lookup`
+
+-- COMMAND ----------
+
+SELECT * FROM item_lookup;
 
 -- COMMAND ----------
 
