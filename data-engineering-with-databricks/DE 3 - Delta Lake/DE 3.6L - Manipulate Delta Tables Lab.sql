@@ -92,6 +92,10 @@ WHEN NOT MATCHED AND b.delicious = true THEN
 
 -- COMMAND ----------
 
+SELECT * FROM beans;
+
+-- COMMAND ----------
+
 -- MAGIC %md
 -- MAGIC
 -- MAGIC
@@ -104,7 +108,7 @@ WHEN NOT MATCHED AND b.delicious = true THEN
 
 -- COMMAND ----------
 
--- <FILL-IN>
+DESCRIBE HISTORY beans;
 
 -- COMMAND ----------
 
@@ -168,12 +172,16 @@ SELECT * FROM beans
 
 -- COMMAND ----------
 
--- CREATE OR REPLACE TEMP VIEW pre_delete_vw AS
--- <FILL-IN>
+CREATE OR REPLACE TEMP VIEW pre_delete_tvw AS
+SELECT * FROM beans VERSION AS OF 4;
 
 -- COMMAND ----------
 
-SELECT * FROM pre_delete_vw
+SELECT * FROM pre_delete_tvw
+
+-- COMMAND ----------
+
+SELECT INT(SUM(grams)) FROM pre_delete_tvw;
 
 -- COMMAND ----------
 
@@ -185,9 +193,9 @@ SELECT * FROM pre_delete_vw
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC assert spark.table("pre_delete_vw"), "Make sure you have registered the temporary view with the provided name `pre_delete_vw`"
--- MAGIC assert spark.table("pre_delete_vw").count() == 6, "Make sure you're querying a version of the table with 6 records"
--- MAGIC assert spark.table("pre_delete_vw").selectExpr("int(sum(grams))").first()[0] == 43220, "Make sure you query the version of the table after updates were applied"
+-- MAGIC assert spark.table("pre_delete_tvw"), "Make sure you have registered the temporary view with the provided name `pre_delete_tvw`"
+-- MAGIC assert spark.table("pre_delete_tvw").count() == 6, "Make sure you're querying a version of the table with 6 records"
+-- MAGIC assert spark.table("pre_delete_tvw").selectExpr("int(sum(grams))").first()[0] == 43220, "Make sure you query the version of the table after updates were applied"
 
 -- COMMAND ----------
 
@@ -202,7 +210,7 @@ SELECT * FROM pre_delete_vw
 
 -- COMMAND ----------
 
--- <FILL-IN>
+RESTORE TABLE beans TO VERSION AS OF 5; 
 
 -- COMMAND ----------
 
@@ -210,6 +218,10 @@ SELECT * FROM pre_delete_vw
 -- MAGIC
 -- MAGIC
 -- MAGIC Review the history of your table. Make note of the fact that restoring to a previous version adds another table version.
+
+-- COMMAND ----------
+
+SELECT * FROM beans;
 
 -- COMMAND ----------
 
@@ -229,14 +241,39 @@ DESCRIBE HISTORY beans
 -- MAGIC
 -- MAGIC ## File Compaction
 -- MAGIC Looking at the transaction metrics during your reversion, you are surprised you have some many files for such a small collection of data.
--- MAGIC
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls('dbfs:/mnt/dbacademy-users/azr_databricks_spark_course@outlook.com/data-engineering-with-databricks/database.db/beans'))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls('dbfs:/mnt/dbacademy-users/azr_databricks_spark_course@outlook.com/data-engineering-with-databricks/database.db/beans/_delta_log'))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(
+-- MAGIC   spark.sql(f"SELECT * FROM json.`dbfs:/mnt/dbacademy-users/azr_databricks_spark_course@outlook.com/data-engineering-with-databricks/database.db/beans/_delta_log/00000000000000000007.json`")
+-- MAGIC )
+
+-- COMMAND ----------
+
+-- MAGIC %md
 -- MAGIC While indexing on a table of this size is unlikely to improve performance, you decide to add a Z-order index on the **`name`** field in anticipation of your bean collection growing exponentially over time.
 -- MAGIC
 -- MAGIC Use the cell below to perform file compaction and Z-order indexing.
 
 -- COMMAND ----------
 
--- <FILL-IN>
+OPTIMIZE beans 
+ZORDER BY (name);
+
+-- COMMAND ----------
+
+DESCRIBE HISTORY beans;
 
 -- COMMAND ----------
 
@@ -247,7 +284,7 @@ DESCRIBE HISTORY beans
 
 -- COMMAND ----------
 
-DESCRIBE DETAIL beans
+DESCRIBE DETAIL beans;
 
 -- COMMAND ----------
 
@@ -337,6 +374,11 @@ DESCRIBE HISTORY beans
 
 -- COMMAND ----------
 
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls('dbfs:/mnt/dbacademy-users/azr_databricks_spark_course@outlook.com/data-engineering-with-databricks/database.db/beans'))
+
+-- COMMAND ----------
+
 -- MAGIC %md
 -- MAGIC
 -- MAGIC
@@ -360,7 +402,7 @@ SELECT * FROM beans
 
 -- COMMAND ----------
 
--- SELECT * FROM beans@v1
+SELECT * FROM beans@v1
 
 -- COMMAND ----------
 
