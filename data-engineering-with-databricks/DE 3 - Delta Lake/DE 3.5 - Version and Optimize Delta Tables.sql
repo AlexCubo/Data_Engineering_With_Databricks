@@ -55,30 +55,343 @@
 
 CREATE TABLE students
   (id INT, name STRING, value DOUBLE);
-  
+
+-- COMMAND ----------
+
+DESCRIBE DETAIL students
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students/_delta_log"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(
+-- MAGIC     spark.sql(
+-- MAGIC         f"SELECT * FROM json.`{DA.paths.user_db}/students/_delta_log/00000000000000000000.json`"
+-- MAGIC     )
+-- MAGIC )
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC #### LOG
+-- MAGIC {
+-- MAGIC     "createdTime": 1731310950271,
+-- MAGIC     "format": {
+-- MAGIC         "provider": "parquet"
+-- MAGIC     },
+-- MAGIC     "id": "b1859dc8-e55e-4791-b065-dcfada0e7334",
+-- MAGIC     "partitionColumns": [],
+-- MAGIC     "schemaString": "{\"type\":\"struct\",\"fields\":[{\"name\":\"id\",\"type\":\"integer\",\"nullable\":true,\"metadata\":{}},{\"name\":\"name\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"value\",\"type\":\"double\",\"nullable\":true,\"metadata\":{}}]}"
+-- MAGIC }
+-- MAGIC
+
+-- COMMAND ----------
+
+--------------------------------------------------------------------------------------
 INSERT INTO students VALUES (1, "Yve", 1.0);
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students/_delta_log"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(
+-- MAGIC     spark.sql(
+-- MAGIC         f"SELECT * FROM json.`{DA.paths.user_db}/students/_delta_log/00000000000000000001.json`"
+-- MAGIC     )
+-- MAGIC )
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC ### LOG
+-- MAGIC `{
+-- MAGIC     "dataChange": true,
+-- MAGIC     "modificationTime": 1731311664000,
+-- MAGIC     "path": "part-00000-042d9e33-ce7b-46b9-b3c5-4bd54975cbaf-c000.snappy.parquet",
+-- MAGIC     "size": 1055,
+-- MAGIC     "stats": "{\"numRecords\":1,\"minValues\":{\"id\":1,\"name\":\"Yve\",\"value\":1.0},\"maxValues\":{\"id\":1,\"name\":\"Yve\",\"value\":1.0},\"nullCount\":{\"id\":0,\"name\":0,\"value\":0}}",
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731311664000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731311664000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731311664000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }`
+
+-- COMMAND ----------
+
+--------------------------------------------------------------------------------------
 INSERT INTO students VALUES (2, "Omar", 2.5);
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students/_delta_log"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(
+-- MAGIC   spark.sql(f"SELECT * FROM json.`{DA.paths.user_db}/students/_delta_log/00000000000000000002.json`"
+-- MAGIC   )
+-- MAGIC )
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC ### Log
+-- MAGIC `{
+-- MAGIC     "dataChange": true,
+-- MAGIC     "modificationTime": 1731311965000,
+-- MAGIC     "path": "part-00000-d096ea83-f836-4f7d-b802-93f3283f9904-c000.snappy.parquet",
+-- MAGIC     "size": 1063,
+-- MAGIC     "stats": "{\"numRecords\":1,\"minValues\":{\"id\":2,\"name\":\"Omar\",\"value\":2.5},\"maxValues\":{\"id\":2,\"name\":\"Omar\",\"value\":2.5},\"nullCount\":{\"id\":0,\"name\":0,\"value\":0}}",
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731311965000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731311965000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731311965000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }`
+
+-- COMMAND ----------
+
+--------------------------------------------------------------------------------------
 INSERT INTO students VALUES (3, "Elia", 3.3);
 
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students/_delta_log"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(
+-- MAGIC   spark.sql(
+-- MAGIC     f"SELECT * FROM json.`{DA.paths.user_db}/students/_delta_log/00000000000000000003.json`"
+-- MAGIC   )
+-- MAGIC )
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC #### Log
+-- MAGIC `{
+-- MAGIC     "dataChange": true,
+-- MAGIC     "modificationTime": 1731312813000,
+-- MAGIC     "path": "part-00000-95682af0-ffca-42cf-930f-514d111941e9-c000.snappy.parquet",
+-- MAGIC     "size": 1063,
+-- MAGIC     "stats": "{\"numRecords\":1,\"minValues\":{\"id\":3,\"name\":\"Elia\",\"value\":3.3},\"maxValues\":{\"id\":3,\"name\":\"Elia\",\"value\":3.3},\"nullCount\":{\"id\":0,\"name\":0,\"value\":0}}",
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731312813000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731312813000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731312813000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }`
+
+-- COMMAND ----------
+
+--------------------------------------------------------------------------------------
 INSERT INTO students
 VALUES 
   (4, "Ted", 4.7),
   (5, "Tiffany", 5.5),
   (6, "Vini", 6.3);
-  
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students/_delta_log"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display (
+-- MAGIC   spark.sql(f"SELECT * FROM json.`{DA.paths.user_db}/students/_delta_log/00000000000000000004.json`"
+-- MAGIC             )
+-- MAGIC )
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC ### Log
+-- MAGIC `{
+-- MAGIC     "dataChange": true,
+-- MAGIC     "modificationTime": 1731313275000,
+-- MAGIC     "path": "part-00000-fde0d36c-8bfc-4b22-9aaf-466237117de3-c000.snappy.parquet",
+-- MAGIC     "size": 1089,
+-- MAGIC     "stats": "{\"numRecords\":3,\"minValues\":{\"id\":4,\"name\":\"Ted\",\"value\":4.7},\"maxValues\":{\"id\":6,\"name\":\"Vini\",\"value\":6.3},\"nullCount\":{\"id\":0,\"name\":0,\"value\":0}}",
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }`
+
+-- COMMAND ----------
+
+--------------------------------------------------------------------------------------
 UPDATE students 
 SET value = value + 1
 WHERE name LIKE "T%";
 
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students/_delta_log"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(
+-- MAGIC   spark.sql(f"SELECT * FROM json.`{DA.paths.user_db}/students/_delta_log/00000000000000000005.json`")
+-- MAGIC )
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC ### Log
+-- MAGIC `{
+-- MAGIC     "dataChange": true,
+-- MAGIC     "deletionTimestamp": 1731313591634,
+-- MAGIC     "extendedFileMetadata": true,
+-- MAGIC     "path": "part-00000-fde0d36c-8bfc-4b22-9aaf-466237117de3-c000.snappy.parquet",
+-- MAGIC     "size": 1089,
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }
+-- MAGIC
+-- MAGIC {
+-- MAGIC     "dataChange": true,
+-- MAGIC     "modificationTime": 1731313591000,
+-- MAGIC     "path": "part-00000-37459b92-8997-4120-9a96-35da13c4ca12-c000.snappy.parquet",
+-- MAGIC     "size": 1089,
+-- MAGIC     "stats": "{\"numRecords\":3,\"minValues\":{\"id\":4,\"name\":\"Ted\",\"value\":5.7},\"maxValues\":{\"id\":6,\"name\":\"Vini\",\"value\":6.5},\"nullCount\":{\"id\":0,\"name\":0,\"value\":0}}",
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }`
+
+-- COMMAND ----------
+
+SELECT * FROM students
+ORDER BY id;
+
+-- COMMAND ----------
+
+--------------------------------------------------------------------------------------
 DELETE FROM students 
 WHERE value > 6;
 
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students/_delta_log"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(
+-- MAGIC   spark.sql(f"SELECT * FROM json.`{DA.paths.user_db}/students/_delta_log/00000000000000000006.json`")
+-- MAGIC )
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC ### Log
+-- MAGIC `{
+-- MAGIC     "dataChange": true,
+-- MAGIC     "deletionTimestamp": 1731315889614,
+-- MAGIC     "extendedFileMetadata": true,
+-- MAGIC     "path": "part-00000-37459b92-8997-4120-9a96-35da13c4ca12-c000.snappy.parquet",
+-- MAGIC     "size": 1089,
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }
+-- MAGIC
+-- MAGIC {
+-- MAGIC     "dataChange": true,
+-- MAGIC     "modificationTime": 1731315889000,
+-- MAGIC     "path": "part-00000-96bbce09-0b28-416c-9ed0-dd1975168541-c000.snappy.parquet",
+-- MAGIC     "size": 1055,
+-- MAGIC     "stats": "{\"numRecords\":1,\"minValues\":{\"id\":4,\"name\":\"Ted\",\"value\":5.7},\"maxValues\":{\"id\":4,\"name\":\"Ted\",\"value\":5.7},\"nullCount\":{\"id\":0,\"name\":0,\"value\":0}}",
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }`
+
+-- COMMAND ----------
+
+--------------------------------------------------------------------------------------
 CREATE OR REPLACE TEMP VIEW updates(id, name, value, type) AS VALUES
   (2, "Omar", 15.2, "update"),
   (3, "", null, "delete"),
   (7, "Blue", 7.7, "insert"),
   (11, "Diya", 8.8, "update");
-  
+
+-- COMMAND ----------
+
+--------------------------------------------------------------------------------------
 MERGE INTO students b
 USING updates u
 ON b.id=u.id
@@ -88,6 +401,306 @@ WHEN MATCHED AND u.type = "delete"
   THEN DELETE
 WHEN NOT MATCHED AND u.type = "insert"
   THEN INSERT *;
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students/"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students/_delta_log"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(
+-- MAGIC     spark.sql(
+-- MAGIC         f"SELECT * FROM json.`{DA.paths.user_db}/students/_delta_log/00000000000000000007.json`"
+-- MAGIC     )
+-- MAGIC )
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC ### Log
+-- MAGIC `{
+-- MAGIC     "dataChange": true,
+-- MAGIC     "deletionTimestamp": 1731316329343,
+-- MAGIC     "extendedFileMetadata": true,
+-- MAGIC     "path": "part-00000-95682af0-ffca-42cf-930f-514d111941e9-c000.snappy.parquet",
+-- MAGIC     "size": 1063,
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731312813000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731312813000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731312813000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }
+-- MAGIC
+-- MAGIC {
+-- MAGIC     "dataChange": true,
+-- MAGIC     "deletionTimestamp": 1731316329343,
+-- MAGIC     "extendedFileMetadata": true,
+-- MAGIC     "path": "part-00000-d096ea83-f836-4f7d-b802-93f3283f9904-c000.snappy.parquet",
+-- MAGIC     "size": 1063,
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731311965000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731311965000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731311965000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }
+-- MAGIC
+-- MAGIC {
+-- MAGIC     "dataChange": true,
+-- MAGIC     "modificationTime": 1731316329000,
+-- MAGIC     "path": "part-00000-5a99b760-fe58-4356-9721-83fa2eb140fc-c000.snappy.parquet",
+-- MAGIC     "size": 1063,
+-- MAGIC     "stats": "{\"numRecords\":1,\"minValues\":{\"id\":2,\"name\":\"Omar\",\"value\":15.2},\"maxValues\":{\"id\":2,\"name\":\"Omar\",\"value\":15.2},\"nullCount\":{\"id\":0,\"name\":0,\"value\":0}}",
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731316329000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731316329000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731311965000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }
+-- MAGIC
+-- MAGIC {
+-- MAGIC     "dataChange": true,
+-- MAGIC     "modificationTime": 1731316329000,
+-- MAGIC     "path": "part-00002-8dc11e53-1d03-4aa6-9a94-a6767c9c3a35-c000.snappy.parquet",
+-- MAGIC     "size": 1063,
+-- MAGIC     "stats": "{\"numRecords\":1,\"minValues\":{\"id\":7,\"name\":\"Blue\",\"value\":7.7},\"maxValues\":{\"id\":7,\"name\":\"Blue\",\"value\":7.7},\"nullCount\":{\"id\":0,\"name\":0,\"value\":0}}",
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731316329000001",
+-- MAGIC         "MAX_INSERTION_TIME": "1731316329000001",
+-- MAGIC         "MIN_INSERTION_TIME": "1731311965000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }`
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC ### All logs together
+-- MAGIC #### Notice: The name of snapshots are different because cleaning and re-running the notebook results in new parquet files generated by databrics. However the underlyining logic remains the same.
+-- MAGIC
+-- MAGIC 1. student table is created
+-- MAGIC `{
+-- MAGIC     "createdTime": 1731310950271,
+-- MAGIC     "format": {
+-- MAGIC         "provider": "parquet"
+-- MAGIC     },
+-- MAGIC     "id": "b1859dc8-e55e-4791-b065-dcfada0e7334",
+-- MAGIC     "partitionColumns": [],
+-- MAGIC     "schemaString": "{\"type\":\"struct\",\"fields\":[{\"name\":\"id\",\"type\":\"integer\",\"nullable\":true,\"metadata\":{}},{\"name\":\"name\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"value\",\"type\":\"double\",\"nullable\":true,\"metadata\":{}}]}"
+-- MAGIC }
+-- MAGIC
+-- MAGIC 2. Insert transaction
+-- MAGIC   * id 1, Yve is added
+-- MAGIC   * The snapshot: "part-00000-042d9e33-ce7b-46b9-b3c5-4bd54975cbaf-c000.snappy.parquet" is created
+-- MAGIC {
+-- MAGIC     "dataChange": true,
+-- MAGIC     "modificationTime": 1731311664000,
+-- MAGIC     "path": "part-00000-042d9e33-ce7b-46b9-b3c5-4bd54975cbaf-c000.snappy.parquet",
+-- MAGIC     "size": 1055,
+-- MAGIC     "stats": "{\"numRecords\":1,\"minValues\":{\"id\":1,\"name\":\"Yve\",\"value\":1.0},\"maxValues\":{\"id\":1,\"name\":\"Yve\",\"value\":1.0},\"nullCount\":{\"id\":0,\"name\":0,\"value\":0}}",
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731311664000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731311664000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731311664000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }
+-- MAGIC
+-- MAGIC 3. Insert transaction
+-- MAGIC   * id 2, Omar is added
+-- MAGIC   * Snapshot "part-00000-d096ea83-f836-4f7d-b802-93f3283f9904-c000.snappy.parquet" is created
+-- MAGIC
+-- MAGIC {
+-- MAGIC     "dataChange": true,
+-- MAGIC     "modificationTime": 1731311965000,
+-- MAGIC     "path": "part-00000-d096ea83-f836-4f7d-b802-93f3283f9904-c000.snappy.parquet",
+-- MAGIC     "size": 1063,
+-- MAGIC     "stats": "{\"numRecords\":1,\"minValues\":{\"id\":2,\"name\":\"Omar\",\"value\":2.5},\"maxValues\":{\"id\":2,\"name\":\"Omar\",\"value\":2.5},\"nullCount\":{\"id\":0,\"name\":0,\"value\":0}}",
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731311965000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731311965000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731311965000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }
+-- MAGIC
+-- MAGIC 4. Insert transaction
+-- MAGIC   * id 3, Elia is added
+-- MAGIC   * Snapshot "part-00000-95682af0-ffca-42cf-930f-514d111941e9-c000.snappy.parquet" is created
+-- MAGIC   * Notice: If you display(dbutils.fs.ls(f"{DA.paths.user_db}/students})) you will see that this last snapshot is listed before than snapshot at point 3. This is because the snapshots are listed alphabetically and not in order of creation. Therefore, never think that the last listed snapshot represents the last version of the table. It is not always the case.
+-- MAGIC
+-- MAGIC {
+-- MAGIC     "dataChange": true,
+-- MAGIC     "modificationTime": 1731312813000,
+-- MAGIC     "path": "part-00000-95682af0-ffca-42cf-930f-514d111941e9-c000.snappy.parquet",
+-- MAGIC     "size": 1063,
+-- MAGIC     "stats": "{\"numRecords\":1,\"minValues\":{\"id\":3,\"name\":\"Elia\",\"value\":3.3},\"maxValues\":{\"id\":3,\"name\":\"Elia\",\"value\":3.3},\"nullCount\":{\"id\":0,\"name\":0,\"value\":0}}",
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731312813000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731312813000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731312813000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }
+-- MAGIC
+-- MAGIC 5. Insert transaction
+-- MAGIC   * id 4 (Ted), 5 (Tiffany), and 6 (Vini) are added
+-- MAGIC   * Snapshot "part-00000-fde0d36c-8bfc-4b22-9aaf-466237117de3-c000.snappy.parquet" is created
+-- MAGIC
+-- MAGIC {
+-- MAGIC     "dataChange": true,
+-- MAGIC     "modificationTime": 1731313275000,
+-- MAGIC     "path": "part-00000-fde0d36c-8bfc-4b22-9aaf-466237117de3-c000.snappy.parquet",
+-- MAGIC     "size": 1089,
+-- MAGIC     "stats": "{\"numRecords\":3,\"minValues\":{\"id\":4,\"name\":\"Ted\",\"value\":4.7},\"maxValues\":{\"id\":6,\"name\":\"Vini\",\"value\":6.3},\"nullCount\":{\"id\":0,\"name\":0,\"value\":0}}",
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }
+-- MAGIC
+-- MAGIC 6. Update transaction
+-- MAGIC   * It consists of 2 steps: a delete step and an insert step
+-- MAGIC   * delete step: the snapshot "part-00000-fde0d36c-8bfc-4b22-9aaf-466237117de3-c000.snappy.parquet" is deleted -> it means that records (4, Ted, 4.7),  (5, Tiffany, 5.5), and (6, Vini, 6.3) are deleted
+-- MAGIC   * insert step: the new snapshot "part-00000-37459b92-8997-4120-9a96-35da13c4ca12-c000.snappy.parquet" is created -> here is added id [(4, Ted, 5,7), (5, Tiffany, 6.5), (6, Vini, 6.3)
+-- MAGIC   * Notice: The complete previous transaction is deleted and recreated with new values for Ted_value and Tiffany_value (while Vini_value remains the same)
+-- MAGIC
+-- MAGIC {
+-- MAGIC     "dataChange": true,
+-- MAGIC     "deletionTimestamp": 1731313591634,
+-- MAGIC     "extendedFileMetadata": true,
+-- MAGIC     "path": "part-00000-fde0d36c-8bfc-4b22-9aaf-466237117de3-c000.snappy.parquet",
+-- MAGIC     "size": 1089,
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }
+-- MAGIC
+-- MAGIC {
+-- MAGIC     "dataChange": true,
+-- MAGIC     "modificationTime": 1731313591000,
+-- MAGIC     "path": "part-00000-37459b92-8997-4120-9a96-35da13c4ca12-c000.snappy.parquet",
+-- MAGIC     "size": 1089,
+-- MAGIC     "stats": "{\"numRecords\":3,\"minValues\":{\"id\":4,\"name\":\"Ted\",\"value\":5.7},\"maxValues\":{\"id\":6,\"name\":\"Vini\",\"value\":6.5},\"nullCount\":{\"id\":0,\"name\":0,\"value\":0}}",
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }
+-- MAGIC
+-- MAGIC 7. Deletion transaction
+-- MAGIC   * It consists in two steps: a delete step and an insert step
+-- MAGIC   * delete step: The snapshot "part-00000-37459b92-8997-4120-9a96-35da13c4ca12-c000.snappy.parquet" is deleted. Logically this happens because we want to delete all records whose value is >= 6. Such records have been added in the previous transaction. That's why now this snapshot is deleted
+-- MAGIC   * insert step: the snapshot "part-00000-96bbce09-0b28-416c-9ed0-dd1975168541-c000.snappy.parquet" is created. Here, the record (4, Ted, 5.7) is added again in the table
+-- MAGIC   * Notice: Databricks deletes a whole snapshot corresponding to a transaction and not single records. Threfore, if during the deletion of the transaction some records have been deleted which should have not been deleted, databricks performs an insert to insert again these records.
+-- MAGIC
+-- MAGIC {
+-- MAGIC     "dataChange": true,
+-- MAGIC     "deletionTimestamp": 1731315889614,
+-- MAGIC     "extendedFileMetadata": true,
+-- MAGIC     "path": "part-00000-37459b92-8997-4120-9a96-35da13c4ca12-c000.snappy.parquet",
+-- MAGIC     "size": 1089,
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }
+-- MAGIC
+-- MAGIC {
+-- MAGIC     "dataChange": true,
+-- MAGIC     "modificationTime": 1731315889000,
+-- MAGIC     "path": "part-00000-96bbce09-0b28-416c-9ed0-dd1975168541-c000.snappy.parquet",
+-- MAGIC     "size": 1055,
+-- MAGIC     "stats": "{\"numRecords\":1,\"minValues\":{\"id\":4,\"name\":\"Ted\",\"value\":5.7},\"maxValues\":{\"id\":4,\"name\":\"Ted\",\"value\":5.7},\"nullCount\":{\"id\":0,\"name\":0,\"value\":0}}",
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731313275000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }
+-- MAGIC
+-- MAGIC 8. Merge transaction
+-- MAGIC   * Merge transaction consists of many steps. In tis case are 4 steps: delete 1, delete 2, insert 1, insert 2
+-- MAGIC   * delete 1: The snapshot "part-00000-95682af0-ffca-42cf-930f-514d111941e9-c000.snappy.parquet is deleted. This was the snapshot where (3, Elia, 3.3) was added. Therefore, this delete step correspond to the "WHEN MATCHED AND u.type = "delete"
+-- MAGIC   THEN DELETE" part of Merge operation
+-- MAGIC   * delete 2: The snapshot "part-00000-d096ea83-f836-4f7d-b802-93f3283f9904-c000.snappy.parquet" is deleted. This was the snapshot where (2, Omar, 2.5) was added. Therefore, this delete step corresponds to the deletion part of the update command "WHEN MATCHED AND u.type = "update" THEN UPDATE SET *" in the Merge clause
+-- MAGIC   * insert 1: The snapshot "part-00000-5a99b760-fe58-4356-9721-83fa2eb140fc-c000.snappy.parquet" is added. This insert corresponds to the insertion part of the update command "WHEN MATCHED AND u.type = "update" THEN UPDATE SET *" in the Merge clause. Basically, in this step the record (2, Omar, 15.2) is added
+-- MAGIC   * insert 2: The snapshot "part-00002-8dc11e53-1d03-4aa6-9a94-a6767c9c3a35-c000.snappy.parquet" is added. This corresponds to the "WHEN NOT MATCHED AND u.type = "insert" THEN INSERT *" in the Merge clause. In this step the record (7, Blue, 7.7) is added.
+-- MAGIC
+-- MAGIC {
+-- MAGIC     "dataChange": true,
+-- MAGIC     "deletionTimestamp": 1731316329343,
+-- MAGIC     "extendedFileMetadata": true,
+-- MAGIC     "path": "part-00000-95682af0-ffca-42cf-930f-514d111941e9-c000.snappy.parquet",
+-- MAGIC     "size": 1063,
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731312813000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731312813000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731312813000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }
+-- MAGIC
+-- MAGIC {
+-- MAGIC     "dataChange": true,
+-- MAGIC     "deletionTimestamp": 1731316329343,
+-- MAGIC     "extendedFileMetadata": true,
+-- MAGIC     "path": "part-00000-d096ea83-f836-4f7d-b802-93f3283f9904-c000.snappy.parquet",
+-- MAGIC     "size": 1063,
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731311965000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731311965000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731311965000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }
+-- MAGIC
+-- MAGIC {
+-- MAGIC     "dataChange": true,
+-- MAGIC     "modificationTime": 1731316329000,
+-- MAGIC     "path": "part-00000-5a99b760-fe58-4356-9721-83fa2eb140fc-c000.snappy.parquet",
+-- MAGIC     "size": 1063,
+-- MAGIC     "stats": "{\"numRecords\":1,\"minValues\":{\"id\":2,\"name\":\"Omar\",\"value\":15.2},\"maxValues\":{\"id\":2,\"name\":\"Omar\",\"value\":15.2},\"nullCount\":{\"id\":0,\"name\":0,\"value\":0}}",
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731316329000000",
+-- MAGIC         "MAX_INSERTION_TIME": "1731316329000000",
+-- MAGIC         "MIN_INSERTION_TIME": "1731311965000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }
+-- MAGIC
+-- MAGIC {
+-- MAGIC     "dataChange": true,
+-- MAGIC     "modificationTime": 1731316329000,
+-- MAGIC     "path": "part-00002-8dc11e53-1d03-4aa6-9a94-a6767c9c3a35-c000.snappy.parquet",
+-- MAGIC     "size": 1063,
+-- MAGIC     "stats": "{\"numRecords\":1,\"minValues\":{\"id\":7,\"name\":\"Blue\",\"value\":7.7},\"maxValues\":{\"id\":7,\"name\":\"Blue\",\"value\":7.7},\"nullCount\":{\"id\":0,\"name\":0,\"value\":0}}",
+-- MAGIC     "tags": {
+-- MAGIC         "INSERTION_TIME": "1731316329000001",
+-- MAGIC         "MAX_INSERTION_TIME": "1731316329000001",
+-- MAGIC         "MIN_INSERTION_TIME": "1731311965000000",
+-- MAGIC         "OPTIMIZE_TARGET_SIZE": "268435456"
+-- MAGIC     }
+-- MAGIC }`
 
 -- COMMAND ----------
 
@@ -134,6 +747,11 @@ DESCRIBE DETAIL students
 -- MAGIC We can see the files backing our Delta Lake table by using a Databricks Utilities function.
 -- MAGIC
 -- MAGIC **NOTE**: It's not important right now to know everything about these files to work with Delta Lake, but it will help you gain a greater appreciation for how the technology is implemented.
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC print(DA.paths.user_db)
 
 -- COMMAND ----------
 
@@ -194,7 +812,11 @@ DESCRIBE DETAIL students
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC display(spark.sql(f"SELECT * FROM json.`{DA.paths.user_db}/students/_delta_log/00000000000000000007.json`"))
+-- MAGIC display(
+-- MAGIC     spark.sql(
+-- MAGIC         f"SELECT * FROM json.`{DA.paths.user_db}/students/_delta_log/00000000000000000000.json`"
+-- MAGIC     )
+-- MAGIC )
 
 -- COMMAND ----------
 
@@ -222,8 +844,42 @@ DESCRIBE DETAIL students
 
 -- COMMAND ----------
 
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students"))
+
+-- COMMAND ----------
+
 OPTIMIZE students
 ZORDER BY id
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students/_delta_log"))
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(
+-- MAGIC   spark.sql(f"SELECT * FROM json.`{DA.paths.user_db}/students/_delta_log/00000000000000000008.json`")
+-- MAGIC )
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC * OPTIMIZE with ZORDER BY introduces a new transaction (00000000000000000008)
+-- MAGIC * This new transaction consists of 4 delete steps and 1 insert step
+-- MAGIC * In the 4 delete steps are deleted all parquet snapshots corresponding to the latest layout of the table:
+-- MAGIC   1. delete the snapshot of transaction 2: insert (1, Yve, 1)
+-- MAGIC   2. delete the snapshot of transaction 7: re-insert (4, Ted, 5.7) after deletion step
+-- MAGIC   3. delete the snapshot in Merge transaction 8: update (2, Omar, 15.2)
+-- MAGIC   4. delete the snapshot in Merge transaction 8: insert (7, Bule, 7.7)
+-- MAGIC * In the insert step the records of the latest version of the table are re-inserted. But now the distribution of the data is optimized according to the ZORDER BY clustering. 
 
 -- COMMAND ----------
 
@@ -243,7 +899,11 @@ ZORDER BY id
 
 -- COMMAND ----------
 
-DESCRIBE HISTORY students
+CREATE OR REPLACE TEMP VIEW history_students_tvw AS
+DESCRIBE HISTORY students;
+
+SELECT * FROM history_students_tvw
+ORDER BY version;
 
 -- COMMAND ----------
 
@@ -262,6 +922,7 @@ DESCRIBE HISTORY students
 
 SELECT * 
 FROM students VERSION AS OF 3
+ORDER BY id;
 
 -- COMMAND ----------
 
@@ -282,6 +943,20 @@ FROM students VERSION AS OF 3
 -- COMMAND ----------
 
 DELETE FROM students
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(
+-- MAGIC   spark.sql(f"SELECT * FROM json.`{DA.paths.user_db}/students/_delta_log/00000000000000000009.json`")
+-- MAGIC )
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC #### Notice about "DELETE FROM students"
+-- MAGIC * We have a new transaction where the snapshot of the latest transaction (the OPTIMIZE operation) is removed
+-- MAGIC * Since no new re-insert step is done, the final result is an empty table 
 
 -- COMMAND ----------
 
@@ -306,6 +981,44 @@ SELECT * FROM students
 -- COMMAND ----------
 
 RESTORE TABLE students TO VERSION AS OF 8
+
+-- COMMAND ----------
+
+SELECT * FROM students
+ORDER BY id;
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(
+-- MAGIC   dbutils.fs.ls(f"{DA.paths.user_db}/students")
+-- MAGIC )
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(
+-- MAGIC   dbutils.fs.ls(f"{DA.paths.user_db}/students/_delta_log")
+-- MAGIC )
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(
+-- MAGIC   spark.sql(f"SELECT * FROM json.`{DA.paths.user_db}/students/_delta_log/00000000000000000010.json`")
+-- MAGIC )
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC #### Notice about "RESTORE TABLE students TO VERSION AS OF 8"
+-- MAGIC * The RESTORE command introduces a new transaction and a new parquet snapshot is added
+-- MAGIC * In this snapshot the 4 records of the table at version 8 are re-inserted
+-- MAGIC * RESTORE introduce also a "metadata" step and a "protocol" step, since it is like the table is re-initialized
+
+-- COMMAND ----------
+
+DESCRIBE HISTORY students;
 
 -- COMMAND ----------
 
@@ -345,6 +1058,8 @@ RESTORE TABLE students TO VERSION AS OF 8
 -- MAGIC 1. Turn off a check to prevent premature deletion of data files
 -- MAGIC 1. Make sure that logging of **`VACUUM`** commands is enabled
 -- MAGIC 1. Use the **`DRY RUN`** version of vacuum to print out all records to be deleted
+-- MAGIC
+-- MAGIC * NOTICE: Adding DRY RUN results in a safe opration. The files are not vacuued. This operation just returns the files that are going to be vacuued permanently in case you run VACUUM students RETAIN 0 HOURS 
 
 -- COMMAND ----------
 
@@ -366,15 +1081,51 @@ VACUUM students RETAIN 0 HOURS
 
 -- COMMAND ----------
 
+SELECT * FROM students;
+
+-- COMMAND ----------
+
 -- MAGIC %md
--- MAGIC
--- MAGIC
--- MAGIC Check the table directory to show that files have been successfully deleted.
+-- MAGIC #### see next display:
+-- MAGIC * All parquet files have been deleted, but the last one (the one re-created during the RESTORE operation)
 
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC display(dbutils.fs.ls(f"{DA.paths.user_db}/students"))
+-- MAGIC display(
+-- MAGIC   dbutils.fs.ls(f"{DA.paths.user_db}/students")
+-- MAGIC )
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC * Transaction 00000000000000000011 is the "VACUUM START"
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(
+-- MAGIC   spark.sql(f"SELECT * FROM json.`{DA.paths.user_db}/students/_delta_log/00000000000000000011.json`")
+-- MAGIC )
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC * Transaction 00000000000000000012 is the "VACUUM END"
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC display(
+-- MAGIC   spark.sql(f"SELECT * FROM json.`{DA.paths.user_db}/students/_delta_log/00000000000000000012.json`")
+-- MAGIC )
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC
+-- MAGIC
+-- MAGIC Check the table directory to show that files have been successfully deleted.
 
 -- COMMAND ----------
 
