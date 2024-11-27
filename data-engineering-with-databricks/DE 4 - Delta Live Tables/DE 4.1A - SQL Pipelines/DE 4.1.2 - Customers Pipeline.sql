@@ -93,7 +93,7 @@ CONSTRAINT valid_address EXPECT (
   zip_code IS NOT NULL) or
   operation = "DELETE"),
 CONSTRAINT valid_email EXPECT (
-  rlike(email, '^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$') or 
+  rlike(email, '^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$') or 
   operation = "DELETE") ON VIOLATION DROP ROW)
 AS SELECT *
   FROM STREAM(LIVE.customers_bronze)
