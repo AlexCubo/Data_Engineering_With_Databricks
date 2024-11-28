@@ -38,6 +38,12 @@ display(event_log)
 
 # COMMAND ----------
 
+# MAGIC %sql
+# MAGIC SELECT * FROM event_log_raw
+# MAGIC LIMIT 10;
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ## Set Latest Update ID
 # MAGIC
@@ -57,6 +63,16 @@ print(f"Latest Update ID: {latest_update_id}")
 
 # Push back into the spark config so that we can use it in a later query.
 spark.conf.set('latest_update.id', latest_update_id)
+
+# COMMAND ----------
+
+print(latest_update_id)
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SELECT * FROM event_log_raw
+# MAGIC WHERE origin.update_id = '${latest_update.id}'
 
 # COMMAND ----------
 
@@ -86,6 +102,13 @@ spark.conf.set('latest_update.id', latest_update_id)
 # COMMAND ----------
 
 # MAGIC %sql
+# MAGIC SELECT * FROM event_log_raw
+# MAGIC WHERE event_type = 'flow_definition'
+# MAGIC AND origin.update_id = '${latest_update.id}';
+
+# COMMAND ----------
+
+# MAGIC %sql
 # MAGIC SELECT details:flow_definition.output_dataset, details:flow_definition.input_datasets 
 # MAGIC FROM event_log_raw 
 # MAGIC WHERE event_type = 'flow_definition' AND 
@@ -99,6 +122,26 @@ spark.conf.set('latest_update.id', latest_update_id)
 # MAGIC Finally, data quality metrics can be extremely useful for both long term and short term insights into your data.
 # MAGIC
 # MAGIC Below, we capture the metrics for each constraint throughout the entire lifetime of our table.
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SELECT * 
+# MAGIC FROM event_log_raw
+# MAGIC WHERE event_type = 'flow_progress'
+# MAGIC AND from_json(details :flow_progress :data_quality :expectations,
+# MAGIC                       "array<struct<name: string, dataset: string, passed_records: int, failed_records: int>>") IS NOT NULL;
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SELECT explode(
+# MAGIC             from_json(details :flow_progress :data_quality :expectations,
+# MAGIC                       "array<struct<name: string, dataset: string, passed_records: int, failed_records: int>>")
+# MAGIC           ) row_expectations
+# MAGIC    FROM event_log_raw
+# MAGIC    WHERE event_type = 'flow_progress' AND 
+# MAGIC          origin.update_id = '${latest_update.id}'
 
 # COMMAND ----------
 
