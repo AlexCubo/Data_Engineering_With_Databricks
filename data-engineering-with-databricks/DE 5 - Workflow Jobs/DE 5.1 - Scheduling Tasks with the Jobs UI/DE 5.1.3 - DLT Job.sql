@@ -3,6 +3,19 @@
 
 -- COMMAND ----------
 
+-- MAGIC %md
+-- MAGIC %python
+-- MAGIC df = spark.read.json("dbfs:/mnt/dbacademy-datasets/data-engineer-learning-path/v04/retail-org/sales_orders/")
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC CREATE TABLE IF NOT EXISTS azr_databricks_spark_course_4ryh_da_dewd_jobs_demo.sales_orders_raw
+-- MAGIC AS
+-- MAGIC SELECT * FROM json.`dbfs:/mnt/dbacademy-datasets/data-engineer-learning-path/v04/retail-org/sales_orders/`
+
+-- COMMAND ----------
+
 CREATE OR REFRESH STREAMING LIVE TABLE sales_orders_raw
 COMMENT "The raw sales orders, ingested from retail-org/sales_orders."
 AS

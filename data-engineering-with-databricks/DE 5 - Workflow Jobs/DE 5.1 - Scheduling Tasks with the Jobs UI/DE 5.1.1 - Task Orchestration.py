@@ -31,6 +31,10 @@
 
 # COMMAND ----------
 
+display(dbutils.fs.ls("dbfs:/mnt/dbacademy-datasets/data-engineer-learning-path/v04/retail-org/sales_orders"))
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC
 # MAGIC ## Generate Job Configuration
