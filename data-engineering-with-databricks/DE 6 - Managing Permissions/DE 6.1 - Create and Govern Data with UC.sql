@@ -36,6 +36,10 @@
 
 -- COMMAND ----------
 
+SELECT current_catalog() as catalog;
+
+-- COMMAND ----------
+
 -- MAGIC %run ./Includes/Classroom-Setup-06.1
 
 -- COMMAND ----------
@@ -69,7 +73,22 @@
 
 -- COMMAND ----------
 
+-- MAGIC %python
+-- MAGIC print(DA.my_new_catalog)
+
+-- COMMAND ----------
+
+show catalogs
+
+-- COMMAND ----------
+
+-- MAGIC %python
+-- MAGIC dbutils.fs.ls('abfss://module6@sadataengineeringwithdb.dfs.core.windows.net/')
+
+-- COMMAND ----------
+
 CREATE CATALOG IF NOT EXISTS ${DA.my_new_catalog}
+MANAGED LOCATION 'abfss://module6@sadataengineeringwithdb.dfs.core.windows.net/'
 
 -- COMMAND ----------
 
@@ -322,7 +341,7 @@ SELECT
 FROM heartrate_device
 WHERE
   CASE WHEN
-    is_account_group_member('account users') THEN device_id < 30
+    is_account_group_member('account users') THEN device_id > 30
     ELSE TRUE
   END
 
@@ -443,6 +462,10 @@ SHOW CATALOGS
 -- COMMAND ----------
 
 SHOW GRANTS ON VIEW agg_heartrate
+
+-- COMMAND ----------
+
+SHOW GRANTS ON TABLE agg_heartrate;
 
 -- COMMAND ----------
 
